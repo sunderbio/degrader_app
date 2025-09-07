@@ -1,0 +1,35 @@
+import streamlit as st
+import random
+
+# Mock data
+warheads = {"BRD4_Binder": 0.7, "KRAS_Binder": 0.3, "Tau_Binder": 0.5}
+linkers = {"Short_Rigid": 0.9, "Long_Flexible": 0.6, "PEG_Chain": 0.8}
+e3_ligands = {"CRBN": 0.9, "VHL": 0.95, "IAP": 0.7}
+
+st.title("🧪 DegraderBuilder MVP")
+st.write("Design and predict protein degrader molecules")
+
+# Component selection
+col1, col2, col3 = st.columns(3)
+with col1:
+    warhead = st.selectbox("Warhead", options=list(warheads.keys()))
+with col2:
+    linker = st.selectbox("Linker", options=list(linkers.keys()))
+with col3:
+    e3_ligand = st.selectbox("E3 Ligand", options=list(e3_ligands.keys()))
+
+# Prediction logic
+if st.button("Predict Degradation"):
+    base_score = warheads[warhead] * linkers[linker] * e3_ligands[e3_ligand]
+    degradation_score = max(0.1, min(0.99, base_score + random.uniform(-0.15, 0.15)))
+    solubility_score = max(0.1, min(0.99, (1 - degradation_score) + random.uniform(-0.2, 0.2)))
+    
+    st.metric("Degradation Potency", f"{degradation_score:.2%}")
+    st.metric("Solubility Score", f"{solubility_score:.2%}")
+    
+    if degradation_score > 0.8:
+        st.success("Excellent potency! Try to improve solubility next.")
+    elif degradation_score < 0.4:
+        st.error("Low potency. Try a different Warhead/E3 combination.")
+    else:
+        st.info("Promising start. Try optimizing the linker.")
